@@ -48,3 +48,5 @@ echo Name of the Pod: $POD_NAME
 curl http://localhost:8001/api/v1/namespaces/default/pods/$POD_NAME/proxy/
 // Hello Kubernetes bootcamp! | Running on: kubernetes-bootcamp-5b48cfdcbd-tv7z2 | v=1
 ```
+
+## Explore Your App
