@@ -80,6 +80,15 @@ kubectl exec -ti $POD_NAME bash
 # exit
 ```
 
+## Expose Your App Publicly
+####
+```sh
+```
+
+####
+```sh
+```
+
 ## 
 ####
 ```sh
