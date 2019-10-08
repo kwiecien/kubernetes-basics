@@ -81,15 +81,37 @@ kubectl exec -ti $POD_NAME bash
 ```
 
 ## Expose Your App Publicly
-####
+#### Create a new service
 ```sh
+kubectl get pods
+kubectl get services
+kubectl expose deployment/kubernetes-bootcamp --type="NodePort" --port 8080
+// service/kubernetes-bootcamp exposed
+kubectl get services
+kubectl describe services/kubernetes-bootcamp
+export NODE_PORT=$(kubectl get services/kubernetes-bootcamp -o go-template='{{(index .spec.ports 0).nodePort}}')
+echo NODE_PORT=$NODE_PORT
+// NODE_PORT=30070
+curl $(minikube ip):$NODE_PORT
 ```
 
-####
+#### Using labels
 ```sh
+kubectl describe deployment
+kubectl get pods -l run=kubernetes-bootcamp
+// NAME                                   READY   STATUS    RESTARTS   AGE
+// kubernetes-bootcamp-5b48cfdcbd-ttghr   1/1     Running   0          9m
+export POD_NAME=$(kubectl get pods -o go-template --template '{{range .items}}{{.metadata.name}}{{"\n"}}{{end}}')
+kubectl label pod $POD_NAME app=v1
+kubectl describe pods $POD_NAME
+kubectl get pods -l app=v1
 ```
 
-## 
-####
+#### Deleting a service
 ```sh
+kubectl delete service -l run=kubernetes-bootcamp
+kubectl get services
+curl $(minikube ip):$NODE_PORT
+// curl: (7) Failed to connect to 172.17.0.57 port 30070: Connection refused
+kubectl exec -ti $POD_NAME curl localhost:8080
 ```
