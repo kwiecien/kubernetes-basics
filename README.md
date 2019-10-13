@@ -115,3 +115,32 @@ curl $(minikube ip):$NODE_PORT
 // curl: (7) Failed to connect to 172.17.0.57 port 30070: Connection refused
 kubectl exec -ti $POD_NAME curl localhost:8080
 ```
+
+## Scale Your App
+#### Scaling a deployment
+```sh
+kubectl get deployments
+kubectl scale deployments/kubernetes-bootcamp --replicas=4
+kubectl get pods -o wide
+kubectl describe deployments/kubernetes-bootcamp
+```
+
+#### Load Balancing
+```sh
+kubectl describe services/kubernetes-bootcamp
+// Endpoints:                172.18.0.2:8080,172.18.0.6:8080,172.18.0.7:8080 + 1 more...
+export NODE_PORT=$(kubectl get services/kubernetes-bootcamp -o go-template='{{(index .spec.ports 0).nodePort}}')
+echo NODE_PORT=$NODE_PORT
+// NODE_PORT=32765
+curl $(minikube ip):$NODE_PORT
+// Running on: kubernetes-bootcamp-5b48cfdcbd-hmmxg
+// Running on: kubernetes-bootcamp-5b48cfdcbd-4cjrv --> Load balancing!
+```
+
+#### Step 3: Scale Down
+```sh
+kubectl scale deployments/kubernetes-bootcamp --replicas=2
+kubectl get deployments
+// READY 2/2
+kubectl get pods -o wide
+```
