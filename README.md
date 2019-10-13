@@ -144,3 +144,61 @@ kubectl get deployments
 // READY 2/2
 kubectl get pods -o wide
 ```
+
+## Update your app
+#### Update the version of the app
+```sh
+kubectl get deployments
+kubectl get pods
+kubectl describe pods
+// Containers:
+//  kubernetes-bootcamp:
+//    Container ID:   docker://6c8df1e2baa746c2c21064e35c37640001217271b454604749af567be76b2189
+//    Image:          gcr.io/google-samples/kubernetes-bootcamp:v1
+kubectl set image deployments/kubernetes-bootcamp kubernetes-bootcamp=jocatalin/kubernetes-bootcamp:v2
+kubectl get pods
+// Status: Running -> Terminating; ContainerCreating -> Running
+```
+
+#### Verify an update
+```sh
+kubectl describe services/kubernetes-bootcamp
+export NODE_PORT=$(kubectl get services/kubernetes-bootcamp -o go-template='{{(index .spec.ports 0).nodePort}}')
+echo NODE_PORT=$NODE_PORT
+// NODE_PORT=32213
+curl $(minikube ip):$NODE_PORT
+Running on: kubernetes-bootcamp-cfc74666-qmhpl | v=2
+
+kubectl rollout status deployments/kubernetes-bootcamp
+// deployment "kubernetes-bootcamp" successfully rolled out
+
+kubectl describe pods
+// Containers:
+//  kubernetes-bootcamp:
+//    Container ID:   docker://9affeb38af14cad88c88676122cfb61fae43d998c894b0c6d265639b09780687
+//    Image:          jocatalin/kubernetes-bootcamp:v2
+```
+
+#### Rollback an update
+```sh
+kubectl set image deployments/kubernetes-bootcamp kubernetes-bootcamp=gcr.io/google-samples/kubernetes-bootcamp:v10
+
+kubectl get deployments
+// NAME                  READY   UP-TO-DATE   AVAILABLE   AGE
+// kubernetes-bootcamp   3/4     2            3           23m -> Something went wrong...
+
+kubectl get pods
+// NAME                                   READY   STATUS             RESTARTS   AGE
+//kubernetes-bootcamp-547469f5dd-dvqcm   0/1     ImagePullBackOff   0          21s
+
+kubectl describe pods
+// Failed to pull image "gcr.io/google-samples/kubernetes-bootcamp:v10":
+// rpc error: code = Unknown desc = Error response from daemon: 
+// manifest for gcr.io/google-samples/kubernetes-bootcamp:v10 not found
+
+kubectl rollout undo deployments/kubernetes-bootcamp
+// deployment.extensions/kubernetes-bootcamp rolled back
+
+kubectl get pods
+kubectl describe pods
+```
